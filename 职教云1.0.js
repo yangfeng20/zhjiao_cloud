@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         test
+// @name         职教云|智慧职教助手[稳定版]
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  智慧职教自动刷课，点击进入课程首页自动开始（播放视频第一次手动静音），可结合浏览器倍数插件一起使用（最好别超过1.5倍速）
@@ -7,8 +7,6 @@
 // @match        https://zjy2.icve.com.cn/study/process/process.html*
 // @match        https://zjy2.icve.com.cn/common/directory/directory.html*
 // @icon         https://zjy2.icve.com.cn/common/images/logo.png
-// @updateURL    https://greasyfork.org/zh-CN/scripts/432222-%E8%81%8C%E6%95%99%E4%BA%91-%E6%99%BA%E6%85%A7%E8%81%8C%E6%95%99%E5%8A%A9%E6%89%8B
-// @downloadURL  https://greasyfork.org/zh-CN/scripts/432222-%E8%81%8C%E6%95%99%E4%BA%91-%E6%99%BA%E6%85%A7%E8%81%8C%E6%95%99%E5%8A%A9%E6%89%8B
 // @grant        none
 // ==/UserScript==
 ////////课程首页参数///////////
@@ -148,7 +146,7 @@ function openSection(m) {
     if (trList_len===undefined || trList_len===0){
         trList_len = trList.length;
     }
-    console.log("trList长度："+trList_len)    //为零就等待下一次获取
+    console.log("trList长度："+trList_len)    //为零就等待下一次获取【为2表示这个是空模块】
 
     //前面有3个无效tr，不是章节（从索引为3的开始取）
     for (let i = 2; i < trList.length; i++) {
@@ -161,6 +159,12 @@ function openSection(m) {
             }
             //console.log(trList[i])
         }
+    }
+
+    //trList=2时表示这个模块为空【未获取到数据trList=0】
+    if (trList_len===2){
+        //开始下一个模块
+        next=true;
     }
 
 
@@ -230,12 +234,7 @@ function isEmptySection(contentList) {
     //子节点个数（为1就是章节为空[有一个text子标签]）
     let childNodeNum = contentList.childNodes.length;
     //console.log("子节点的个数："+childNodeNum);
-    if (childNodeNum<=1){
-        //为空返回true
-        return true;
-    }else {
-        return false;
-    }
+    return childNodeNum <= 1;
 }
 
 
@@ -292,7 +291,6 @@ function exeTimeout() {
     //弹窗存在
     if (popup){
         console.log("超时弹窗")
-        debugger;
         //确定按钮
         let button = popup.getElementsByClassName("sgBtn ok")[0];
         button.click();
@@ -322,7 +320,6 @@ function hint(){
         //没有弹出提示
         return;
     }
-    debugger;
     //不会在控制台显示，因为点击之后会刷新浏览器
     console.log("上一次学习记录【已处理】");
 
@@ -616,7 +613,6 @@ function except(){
     if (a !== undefined && a !== null){
         console.log("学习异常【已处理】")
         console.log(a);
-        debugger;
         a.click();
     }else{
         //console.log("无异常")
